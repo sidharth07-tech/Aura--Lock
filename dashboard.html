@@ -1,0 +1,47 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="page-banner">
+  <h1>Welcome back, {{ user['phone'] }}</h1>
+  <p class="hero-subtitle">Create, search, and manage your notes with secure phone login and one-device access.</p>
+</div>
+<div class="small-card d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
+  <div>
+    <h4 class="mb-1">Fast note-taking for your daily ideas.</h4>
+    <p class="mb-0 footer-note">Search by title or date to find notes instantly.</p>
+  </div>
+  <a class="btn btn-success btn-lg mt-3 mt-md-0" href="{{ url_for('new_note') }}">Create New Note</a>
+</div>
+<div class="card mb-4">
+  <div class="card-body">
+    <form method="get" class="row g-3">
+      <div class="col-md-5">
+        <input type="text" name="title" class="form-control" placeholder="Search by title" value="{{ search_title }}">
+      </div>
+      <div class="col-md-4">
+        <input type="date" name="date" class="form-control" value="{{ search_date }}">
+      </div>
+      <div class="col-md-3">
+        <button type="submit" class="btn btn-primary w-100">Search</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% if notes %}
+  <div class="row gy-3">
+    {% for note in notes %}
+      <div class="col-md-6">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">{{ note['title'] }}</h5>
+            <p class="card-text text-truncate">{{ note['content'] }}</p>
+            <p class="text-muted small mb-1">Saved on {{ note['created_at'] }}</p>
+            <a class="btn btn-outline-primary btn-sm" href="{{ url_for('view_note', note_id=note['id']) }}">View</a>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="alert alert-info">No notes found. Create your first note now.</div>
+{% endif %}
+{% endblock %}

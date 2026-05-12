@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h2 class="card-title mb-3">Verify Phone</h2>
+        <p>We sent an OTP to <strong>{{ phone }}</strong>. Use the code below for demo verification:</p>
+        <div class="alert alert-secondary"><strong>OTP: {{ otp_code }}</strong></div>
+        <form method="post" action="{{ url_for('verify') }}">
+          <input type="hidden" name="phone" value="{{ phone }}">
+          <div class="mb-3">
+            <label class="form-label">Enter OTP</label>
+            <input type="text" name="otp" class="form-control" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Verify</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
