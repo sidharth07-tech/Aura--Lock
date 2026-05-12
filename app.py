@@ -11,7 +11,7 @@ DB_PATH = os.path.join(BASE_DIR, "notebook.db")
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "change_this_secret_key")
-app.config["DATABASE"] = DB_PATH
+app.config["DATABASE"] = os.environ.get("DATABASE_PATH", DB_PATH)
 
 
 def get_db():
@@ -90,7 +90,14 @@ def current_user():
 
 @app.before_request
 def require_valid_session():
-    if request.endpoint in ("dashboard", "new_note", "save_note", "logout", "profile"):
+    if request.endpoint in (
+        "dashboard",
+        "new_note",
+        "save_note",
+        "view_note",
+        "logout",
+        "profile",
+    ):
         if current_user() is None:
             return redirect(url_for("login"))
 
@@ -315,6 +322,12 @@ def view_note(note_id):
 
 with app.app_context():
     init_db()
+
+
+@app.errorhandler(Exception)
+def handle_exception(error):
+    app.logger.exception("Unhandled exception")
+    return "Internal server error. Please check the Render logs.", 500
 
 
 if __name__ == "__main__":
