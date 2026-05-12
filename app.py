@@ -11,7 +11,7 @@ DB_PATH = os.path.join(BASE_DIR, "notebook.db")
 
 app = Flask(__name__)
 
-    app.config['SECRET_KEY'] = 'mysecretkey'
+app.config['SECRET_KEY'] = 'mysecretkey'
 
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "change_this_secret_key")
 app.config["DATABASE"] = os.environ.get("DATABASE_PATH", DB_PATH)
