@@ -1,2 +1,6 @@
 Flask==2.3.3
+Flask-SQLAlchemy
+Flask-Login
+Flask-Bcrypt
 gunicorn==20.1.0
+setuptools
