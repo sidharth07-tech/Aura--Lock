@@ -1,29 +1,38 @@
 {% extends "layout.html" %}
 {% block content %}
-<div class="row justify-content-center">
-  <div class="col-md-7">
-    <div class="card shadow-sm">
-      <div class="card-body">
-        <h2 class="card-title mb-3">Profile Settings</h2>
+<div class="page-banner page-banner-small">
+  <div>
+    <h1 class=\"text-gradient-primary text-shadow-soft\">Profile Settings</h1>
+    <p class="hero-subtitle">Manage your account and update your password securely.</p>
+  </div>
+</div>
+<div class="page-body">
+  <div class="card card-surface profile-card">
+    <div class="card-body">
+      <div class="mb-4">
+        <h4 class="mb-1">Account</h4>
         <p class="text-muted">Phone: <strong>{{ user['phone'] }}</strong></p>
-        <hr>
-        <h5>Change Password</h5>
-        <form method="post">
-          <div class="mb-3">
-            <label class="form-label">Current Password</label>
-            <input type="password" name="current_password" class="form-control" required>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">New Password</label>
-            <input type="password" name="new_password" class="form-control" required>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Confirm New Password</label>
-            <input type="password" name="confirm_password" class="form-control" required>
-          </div>
-          <button type="submit" class="btn btn-success">Change Password</button>
-        </form>
       </div>
+      <hr>
+      <div class="mb-4">
+        <h5>Change Password</h5>
+        <p class="text-muted">Use a strong password to keep your notes protected.</p>
+      </div>
+      <form method="post" class="profile-form">
+        <div class="form-group mb-4">
+          <label class="form-label">Current Password</label>
+          <input type="password" name="current_password" class="form-control" required>
+        </div>
+        <div class="form-group mb-4">
+          <label class="form-label">New Password</label>
+          <input type="password" name="new_password" class="form-control" required>
+        </div>
+        <div class="form-group mb-4">
+          <label class="form-label">Confirm New Password</label>
+          <input type="password" name="confirm_password" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-success">Change Password</button>
+      </form>
     </div>
   </div>
 </div>
