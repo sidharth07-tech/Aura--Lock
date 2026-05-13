@@ -1,16 +1,19 @@
 {% extends "layout.html" %}
 {% block content %}
-<div class="row justify-content-center">
-  <div class="col-lg-8">
-    <div class="card shadow-sm">
-      <div class="card-body">
-        <h2 class="card-title">{{ note['title'] }}</h2>
-        <p class="text-muted">Created at {{ note['created_at'] }}</p>
-        <div class="note-content pt-3 border-top mt-3">
-          {{ note['content'] | e | replace('\n', '<br>') | safe }}
-        </div>
-        <a class="btn btn-secondary mt-4" href="{{ url_for('dashboard') }}">Back to Dashboard</a>
-      </div>
+<div class="page-banner page-banner-small">
+  <div>
+    <h1 class=\"text-gradient-primary text-shadow-soft\">{{ note['title'] }}</h1>
+    <p class="hero-subtitle">Review your saved note and continue editing from the dashboard.</p>
+  </div>
+</div>
+<div class="page-body">
+  <div class="note-detail-card card-surface">
+    <div class="note-detail-header">
+      <span class="note-date">Created at {{ note['created_at'] }}</span>
+    </div>
+    <div class="note-content">{{ note['content'] | e | replace('\n', '<br>') | safe }}</div>
+    <div class="mt-4">
+      <a class="btn btn-secondary" href="{{ url_for('dashboard') }}">Back to Dashboard</a>
     </div>
   </div>
 </div>
