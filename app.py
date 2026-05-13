@@ -25,6 +25,7 @@ from werkzeug.security import (
 # ---------------------------------------------------
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 DB_PATH = os.path.join(BASE_DIR, "notebook.db")
 
 app = Flask(__name__)
@@ -64,7 +65,7 @@ def close_db(exception=None):
 
 
 # ---------------------------------------------------
-# CREATE TABLES
+# CREATE DATABASE TABLES
 # ---------------------------------------------------
 
 def init_db():
@@ -129,16 +130,16 @@ def query_db(query, args=(), one=False):
 
 
 # ---------------------------------------------------
-# OTP GENERATION
+# GENERATE OTP
 # ---------------------------------------------------
 
 def generate_otp():
 
-    return f"{random.randint(100000, 999999)}"
+    return str(random.randint(100000, 999999))
 
 
 # ---------------------------------------------------
-# SESSION MANAGEMENT
+# CREATE SESSION
 # ---------------------------------------------------
 
 def create_session(user_id):
@@ -148,8 +149,15 @@ def create_session(user_id):
     db = get_db()
 
     db.execute(
-        "UPDATE users SET active_session = ? WHERE id = ?",
-        (session_token, user_id),
+        """
+        UPDATE users
+        SET active_session = ?
+        WHERE id = ?
+        """,
+        (
+            session_token,
+            user_id,
+        ),
     )
 
     db.commit()
@@ -158,6 +166,10 @@ def create_session(user_id):
 
     session["session_token"] = session_token
 
+
+# ---------------------------------------------------
+# CURRENT USER
+# ---------------------------------------------------
 
 def current_user():
 
@@ -169,7 +181,10 @@ def current_user():
         return None
 
     user = query_db(
-        "SELECT * FROM users WHERE id = ?",
+        """
+        SELECT * FROM users
+        WHERE id = ?
+        """,
         (user_id,),
         one=True,
     )
@@ -186,7 +201,7 @@ def current_user():
 
 
 # ---------------------------------------------------
-# CHECK LOGIN
+# LOGIN CHECK
 # ---------------------------------------------------
 
 @app.before_request
@@ -204,11 +219,12 @@ def require_valid_session():
     if request.endpoint in protected_routes:
 
         if current_user() is None:
+
             return redirect(url_for("login"))
 
 
 # ---------------------------------------------------
-# HOME ROUTE
+# HOME PAGE
 # ---------------------------------------------------
 
 @app.route("/")
@@ -218,13 +234,77 @@ def index():
 
 
 # ---------------------------------------------------
-# 404 ROUTE
+# LOGIN
 # ---------------------------------------------------
 
-@app.errorhandler(404)
-def page_not_found(e):
+@app.route("/login", methods=["GET", "POST"])
+def login():
 
-    return redirect(url_for("login"))
+    if request.method == "POST":
+
+        phone = request.form.get(
+            "phone",
+            "",
+        ).strip()
+
+        password = request.form.get(
+            "password",
+            "",
+        )
+
+        user = query_db(
+            """
+            SELECT * FROM users
+            WHERE phone = ?
+            """,
+            (phone,),
+            one=True,
+        )
+
+        if not user:
+
+            flash(
+                "Invalid phone number or password.",
+                "danger",
+            )
+
+            return redirect(url_for("login"))
+
+        if not user["verified"]:
+
+            flash(
+                "Please verify your account first.",
+                "warning",
+            )
+
+            return render_template(
+                "verify.html",
+                phone=phone,
+                otp_code=user["otp_code"],
+            )
+
+        if not check_password_hash(
+            user["password_hash"],
+            password,
+        ):
+
+            flash(
+                "Invalid phone number or password.",
+                "danger",
+            )
+
+            return redirect(url_for("login"))
+
+        create_session(user["id"])
+
+        flash(
+            "Login successful.",
+            "success",
+        )
+
+        return redirect(url_for("dashboard"))
+
+    return render_template("login.html")
 
 
 # ---------------------------------------------------
@@ -236,21 +316,30 @@ def signup():
 
     if request.method == "POST":
 
-        phone = request.form.get("phone", "").strip()
+        phone = request.form.get(
+            "phone",
+            "",
+        ).strip()
 
-        password = request.form.get("password", "")
+        password = request.form.get(
+            "password",
+            "",
+        )
 
         if not phone or not password:
 
             flash(
-                "Phone number and password are required.",
+                "Phone number and password required.",
                 "warning",
             )
 
             return redirect(url_for("signup"))
 
         existing_user = query_db(
-            "SELECT id FROM users WHERE phone = ?",
+            """
+            SELECT id FROM users
+            WHERE phone = ?
+            """,
             (phone,),
             one=True,
         )
@@ -315,25 +404,40 @@ def signup():
 @app.route("/verify", methods=["POST"])
 def verify():
 
-    phone = request.form.get("phone", "").strip()
+    phone = request.form.get(
+        "phone",
+        "",
+    ).strip()
 
-    otp_input = request.form.get("otp", "").strip()
+    otp_input = request.form.get(
+        "otp",
+        "",
+    ).strip()
 
     user = query_db(
-        "SELECT * FROM users WHERE phone = ?",
+        """
+        SELECT * FROM users
+        WHERE phone = ?
+        """,
         (phone,),
         one=True,
     )
 
     if not user:
 
-        flash("Phone number not found.", "danger")
+        flash(
+            "Phone number not found.",
+            "danger",
+        )
 
         return redirect(url_for("signup"))
 
     if user["otp_code"] != otp_input:
 
-        flash("Incorrect OTP.", "danger")
+        flash(
+            "Incorrect OTP.",
+            "danger",
+        )
 
         return render_template(
             "verify.html",
@@ -365,65 +469,22 @@ def verify():
 
 
 # ---------------------------------------------------
-# LOGIN
+# FORGOT PASSWORD
 # ---------------------------------------------------
 
-@app.route("/login", methods=["GET", "POST"])
-def login():
+@app.route("/forgot-password", methods=["GET", "POST"])
+def forgot_password():
 
     if request.method == "POST":
 
-        phone = request.form.get("phone", "").strip()
-
-        password = request.form.get("password", "")
-
-        user = query_db(
-            "SELECT * FROM users WHERE phone = ?",
-            (phone,),
-            one=True,
+        flash(
+            "Password reset feature coming soon.",
+            "info",
         )
 
-        if not user:
+        return redirect(url_for("login"))
 
-            flash(
-                "Invalid credentials.",
-                "danger",
-            )
-
-            return redirect(url_for("login"))
-
-        if not user["verified"]:
-
-            flash(
-                "Verify phone number first.",
-                "warning",
-            )
-
-            return render_template(
-                "verify.html",
-                phone=phone,
-                otp_code=user["otp_code"],
-            )
-
-        if not check_password_hash(
-            user["password_hash"],
-            password,
-        ):
-
-            flash(
-                "Invalid credentials.",
-                "danger",
-            )
-
-            return redirect(url_for("login"))
-
-        create_session(user["id"])
-
-        flash("Login successful.", "success")
-
-        return redirect(url_for("dashboard"))
-
-    return render_template("login.html")
+    return render_template("forgot_password.html")
 
 
 # ---------------------------------------------------
@@ -440,7 +501,11 @@ def logout():
         db = get_db()
 
         db.execute(
-            "UPDATE users SET active_session = NULL WHERE id = ?",
+            """
+            UPDATE users
+            SET active_session = NULL
+            WHERE id = ?
+            """,
             (user["id"],),
         )
 
@@ -460,7 +525,7 @@ def logout():
 # PROFILE
 # ---------------------------------------------------
 
-@app.route("/profile", methods=["GET", "POST"])
+@app.route("/profile")
 def profile():
 
     user = current_user()
@@ -511,7 +576,10 @@ def dashboard():
 
     query += " ORDER BY created_at DESC"
 
-    notes = query_db(query, tuple(params))
+    notes = query_db(
+        query,
+        tuple(params),
+    )
 
     return render_template(
         "dashboard.html",
@@ -647,12 +715,22 @@ def view_note(note_id):
 
 
 # ---------------------------------------------------
-# INITIALIZE DATABASE
+# DATABASE INIT
 # ---------------------------------------------------
 
 with app.app_context():
 
     init_db()
+
+
+# ---------------------------------------------------
+# 404 PAGE
+# ---------------------------------------------------
+
+@app.errorhandler(404)
+def page_not_found(error):
+
+    return redirect(url_for("login"))
 
 
 # ---------------------------------------------------
