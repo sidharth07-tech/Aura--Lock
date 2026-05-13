@@ -1,25 +1,62 @@
 {% extends "layout.html" %}
 {% block content %}
-<div class="row justify-content-center">
-  <div class="col-md-6">
-    <div class="card shadow-sm">
-      <div class="card-body">
-        <h2 class="card-title mb-3">Create Your Account</h2>
-        <p class="text-muted mb-4">Secure signup with phone verification and password protection.</p>
-        <form method="post">
-          <div class="mb-3">
-            <label class="form-label">Phone Number</label>
-            <input type="text" name="phone" class="form-control" placeholder="Enter phone number" required>
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-panel auth-panel-left auth-panel-left-alt">
+      <span class="auth-badge">Notebook Pro</span>
+      <h1 class=\"text-gradient-secondary\">Create your account</h1>
+      <p class="auth-tagline">Sign up with phone verification for safe, polished access to your private notes.</p>
+      <div class="auth-metrics">
+        <div>
+          <strong>OTP verification</strong>
+          <p>Secure signups with instant phone confirmation.</p>
+        </div>
+        <div>
+          <strong>Pro styling</strong>
+          <p>A premium interface designed for fast note taking.</p>
+        </div>
+      </div>
+    </div>
+    <div class="auth-panel auth-panel-right">
+      <div class="auth-card-header">
+        <h2>Sign Up</h2>
+        <p class="text-muted">Create your account and start managing notes securely.</p>
+      </div>
+      <form method="post" class="auth-form">
+        <div class="form-group">
+          <label class="form-label">Phone Number</label>
+          <input type="text" name="phone" class="form-control" placeholder="+91 98765 43210" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <div class="input-group auth-password-group">
+            <input type="password" name="password" id="password" class="form-control" placeholder="••••••••" required>
+            <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+              <i class="bi bi-eye"></i>
+            </button>
           </div>
-          <div class="mb-3">
-            <label class="form-label">Password</label>
-            <input type="password" name="password" class="form-control" placeholder="Enter password" required>
-          </div>
-          <button type="submit" class="btn btn-success">Sign Up</button>
-        </form>
-        <p class="mt-3">Already registered? <a href="{{ url_for('login') }}">Login</a></p>
+        </div>
+        <button type="submit" class="btn btn-success w-100">Create account</button>
+      </form>
+      <div class="auth-actions">
+        <p class="text-muted">Already have an account? <a href="{{ url_for('login') }}">Login</a></p>
       </div>
     </div>
   </div>
 </div>
+<script>
+  document.getElementById('togglePassword').addEventListener('click', function() {
+    const passwordInput = document.getElementById('password');
+    const icon = this.querySelector('i');
+    if (passwordInput.type === 'password') {
+      passwordInput.type = 'text';
+      icon.classList.remove('bi-eye');
+      icon.classList.add('bi-eye-slash');
+    } else {
+      passwordInput.type = 'password';
+      icon.classList.remove('bi-eye-slash');
+      icon.classList.add('bi-eye');
+    }
+  });
+</script>
 {% endblock %}
